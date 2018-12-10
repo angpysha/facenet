@@ -1,0 +1,10 @@
+*.class
+*.log
+target
+.idea/
+/.idea/
+out/
+logs
+*.iml
+users
+models/origin

@@ -1,0 +1,130 @@
+<configuration>
+
+    <timestamp key="bySecond" datePattern="yyyy-MM-dd-HH-mm-ss"/>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%X{sourceThread}] %X{akkaSource} - %msg%n</pattern>
+
+            <!--If you need UTC in log messages you can use akkaTimestamp-->
+            <!--<pattern>%X{akkaTimestamp} %-5level [%X{sourceThread}] %logger{36} %X{akkaSource} - %msg%n</pattern>-->
+
+            <!--If you  want  to get different colors for parts of log message you can use it -->
+            <!--<pattern>%yellow(%X{akkaTimestamp}) | %highlight(%-5level)  | [%green(%X{sourceThread}, %X{sourceActorSystem}, %X{akkaSource})] %cyan(%logger{36}) - %highlight(%msg%n%ex{full})</pattern>-->
+        </encoder>
+
+        <!-- Uncomment to configure console log level. Log levels are: DEBUG, INFO, WARN and ERROR -->
+        <!--
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        -->
+        <!-- Example for console message content filtering. With the example settings below, only messages
+             containing the text "Not yet implemented" are logged, everything else is filtered out.
+             Note: This needs additional library in runtime dependencies (configure in build.sbt):
+             val janino = "org.codehaus.janino" % "janino" % "3.0.6" -->
+        <!--
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator>
+                <matcher>
+                    <Name>NotYetImplemented</Name>
+                    <regex>Not yet implemented.</regex>
+                </matcher>
+                <expression>NotYetImplemented.matches(formattedMessage)</expression>
+            </evaluator>
+            <OnMismatch>NEUTRAL</OnMismatch>
+            <OnMatch>DENY</OnMatch>
+        </filter>
+        -->
+    </appender>
+
+    <appender name="timeBasedFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>log/gantt-${bySecond}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--The first two are useful for testing-->
+
+            <!--Rollover by minute-->
+            <!--<fileNamePattern>log/gantt-%d{yyyy-MM-dd-HH-mm}.log</fileNamePattern>-->
+
+            <!--Rollover by minute UTC-->
+            <!--<fileNamePattern>log/gantt-%d{yyyy-MM-dd_HH-mm, UTC}.log</fileNamePattern>-->
+
+            <!--Rollover at the top of each hour-->
+            <!--<fileNamePattern>logs/gantt-%d{yyyy-MM-dd_HH}.log</fileNamePattern>-->
+
+            <!--Rollover the first day of each week-->
+            <!--<fileNamePattern>logs/gantt-%d{yyyy-ww}.log</fileNamePattern>-->
+
+            <!--Daily rollover (at midnight) with automatic GZIP compression of the archived files-->
+            <fileNamePattern>log/gantt.%d.gz</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date [%X{sourceThread}] %-5level %X{akkaSource} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="asyncConsole" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="console"/>
+    </appender>
+
+    <appender name="asyncTimeBasedFile" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="timeBasedFile"/>
+    </appender>
+
+    <!-- If you need a simple file appender uncomment lines marked with 1,2 and 3-->
+    <!-- Also uncomment line --> <!--<appender-ref ref="asyncFile"/> --> <!-- and comment line <appender-ref ref="asyncTimeBasedFile"/> -->
+    <!-- 1
+    <appender name="file" class="ch.qos.logback.core.FileAppender">
+            <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%X{sourceThread}] %-5level %logger{36} %X{akkaSource} - %msg%n</pattern>
+        </encoder>
+         -->
+    <!-- Uncomment to configure file log level. Log levels are: DEBUG, INFO, WARN and ERROR -->
+    <!--
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <level>WARN</level>
+    </filter>
+    -->
+    <!-- 2 </appender> 2 -->
+    <!-- 3
+    <appender name="asyncFile" class="ch.qos.logback.classic.AsyncAppender">
+    <appender-ref ref="file" />
+    </appender>
+    -->
+
+    <!--If you need a size limited appender uncomment the following lines-->
+    <!-- Also uncomment line --> <!--<appender-ref ref="asyncSizeBasedFile"/>--> <!-- and comment line <appender-ref ref="asyncTimeBasedFile"/> -->
+    <!--
+    <appender name="SizeBasedFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>log/gantt-${bySecond}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>log/gantt.log.%i.gz</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>10</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>100MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%X{sourceThread}] %-5level %logger{36} %X{akkaSource} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="asyncSizeBasedFile" class="ch.qos.logback.classic.AsyncAppender">
+    <appender-ref ref="SizeBasedFile" />
+    </appender>
+    -->
+
+    <logger name="akka.io" level="off"/>
+    <logger name="io.netty" level="off"/>
+    <logger name="akka.stream.impl.io.FilePublisher" level="off"/>
+    <logger name="akka.stream.impl.io.InputStreamPublisher" level="off"/>
+    
+    <root level="DEBUG">
+        <!--<appender-ref ref="asyncFile"/>-->
+        <!--<appender-ref ref="asyncSizeBasedFile"/>-->
+        <appender-ref ref="asyncTimeBasedFile"/>
+        <appender-ref ref="asyncConsole"/>
+    </root>
+
+</configuration>
