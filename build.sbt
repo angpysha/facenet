@@ -21,10 +21,11 @@ lazy val server = (project in file("server")).settings(
   scalaVersion := scalaV,
   scalaJSProjects := Seq(client),
   pipelineStages in Assets := Seq(scalaJSPipeline),
-  compile in Compile := ((compile in Compile)
-    .dependsOn(scalaJSPipeline, copyJsArtifacts)).value,
-
-  resolvers ++= Seq(Resolver.typesafeRepo("releases"), Resolver.sonatypeRepo("snapshots"), Resolver.sonatypeRepo("releases")),
+  compile in Compile := (compile in Compile).dependsOn(scalaJSPipeline, copyJsArtifacts).value,
+  resolvers ++= Seq(
+    Resolver.typesafeRepo("releases"),
+    Resolver.sonatypeRepo("snapshots"),
+    Resolver.sonatypeRepo("releases")),
 
   assemblyMergeStrategy in assembly := {
     case PathList("org", "bytedeco", xs @ _*) => MergeStrategy.last
